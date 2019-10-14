@@ -31,6 +31,37 @@ const notify = (message, type='success')=>{
   setNotificationMessage({message,type})
   setTimeout(()=> setNotificationMessage({message: null}), 5000)
 }
+const handleLikeButton = async (blogId) => {
+  const likedBlog = blogs.find(blog => blog.id === blogId)
+  likedBlog.likes++
+
+  try {
+    await blogService.update(likedBlog.id, likedBlog)
+    notify(`You liked the blog: ${likedBlog.title}`)
+   
+    blogs.map(blog => {
+      if (blog.id === likedBlog.id) {
+        blog.likes = likedBlog.likes
+      }
+      return blog
+    })
+  } catch (exception) {
+   notify('your like did not register', 'error')
+  }
+ }	
+ const handleRemoveButton = async (blogId)=>{
+   const removeBlog = blogs.find(blog=> blog.id=== blogId)
+
+   window.confirm(`remove blog ${removeBlog.title} by ${removeBlog.author}`)
+   try{
+     await blogService.remove(removeBlog.id)
+     notify(`Removed blog: ${removeBlog.title}`)
+     const newBlogs = blogs.filter(blog => blog.id !==removeBlog.id)
+     setBlogs(newBlogs)
+   } catch (exception){
+     console.log('this did not work', exception)
+   }
+ }	
 
 const handleLogout = (event)=>{
   window.localStorage.removeItem('loggedBlogappUser')
@@ -54,9 +85,13 @@ const handleLogin = async (event) => {
   }
 }
 
+//clickable headers - reveals more info
   const hideWhenVisible = {display: postVisible ? 'none': ''}
   const showWhenVisible = {display: postVisible ? '': 'none'}
 
+  //sorting blogs according to most likes
+  const blogList= blogs
+    .sort((a,b)=> b.likes - a.likes)
 
   if(user===null){
       return(
@@ -102,8 +137,14 @@ const handleLogin = async (event) => {
           notify={notify}/>
           <button onClick={()=> setPostVisible(false)}>cancel</button>
           </div>
-          {blogs.map(blog =>
-            <Blog key={blog.id} blog={blog} />
+          {blogList.map(blog =>
+            <Blog 
+              key={blog.id} 
+              blog={blog} 
+              likeButtonHandler={() => handleLikeButton(blog.id)} 
+              removeButtonHandler={() => handleRemoveButton(blog.id)} 
+              currentUser={user.username}
+              />
           )}    
         </div>
       
