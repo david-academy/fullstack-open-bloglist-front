@@ -1,7 +1,8 @@
-import React, {useState} from 'react'
+import React, { useState } from 'react'
+import propTypes from 'prop-types'
 
-const Blog = ({blog, likeButtonHandler, removeButtonHandler, currentUser}) => {
-const [visible, setVisible]= useState(false)
+const Blog = ({ blog, likeButtonHandler, removeButtonHandler, currentUser }) => {
+  const [visible, setVisible]= useState(false)
 
   const blogStyle = {
     paddingTop: 10,
@@ -11,33 +12,38 @@ const [visible, setVisible]= useState(false)
     marginBottom: 5
   }
 
-  const showWhenVisible = {display: visible ? '': 'none'}
-  const toggleVisibility =()=>{
+  const showWhenVisible = { display: visible ? '': 'none' }
+  const toggleVisibility =() => {
     setVisible(!visible)
     console.log(blog.user.name)
   }
-  const removeButton = ()=>{
+  const removeButton = () => {
     return currentUser === blog.user.username
-    ? (<button onClick={removeButtonHandler}>Remove</button>)
-    : (<></>)
+      ? (<button onClick={removeButtonHandler}>Remove</button>)
+      : (<></>)
   }
 
-return(
- <div style={blogStyle}> 
-   <div onClick={()=> toggleVisibility()}>
-    {blog.title} {blog.author} 
-  </div>
-  <div style={showWhenVisible}>
-    <p>{blog.url}</p>
-    <p>{blog.likes} likes <button onClick={likeButtonHandler}>Like</button></p>
-   
-    <p>added by {blog.user.name}</p>
-    {removeButton()}
-  </div>
-  </div>
+  return(
+    <div style={blogStyle} className='blog' >
+      <div className='title' onClick={() => toggleVisibility()}>
+        {blog.title} {blog.author}
+      </div>
+      <div className='moreInfo' style={showWhenVisible}>
+        <p>{blog.url}</p>
+        <p>{blog.likes} likes <button onClick={likeButtonHandler}>Like</button></p>
+
+        <p>added by {blog.user.name}</p>
+        {removeButton()}
+      </div>
+    </div>
 
 
-)
+  )
 }
-
+Blog.propTypes={
+  blog: propTypes.object.isRequired,
+  likeButtonHandler: propTypes.func.isRequired,
+  removeButtonHandler: propTypes.func.isRequired,
+  currentUser: propTypes.string.isRequired
+}
 export default Blog
